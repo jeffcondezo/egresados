@@ -1,0 +1,96 @@
+{% extends "maestro/gestor_dashboard_base.html" %}
+{% block dashboard_title %}Gestores · Consulta alumnos{% endblock %}
+{% block dashboard_heading %}Consulta alumnos{% endblock %}
+{% block dashboard_subtitle %}Filtre alumnos por DNI o código para revisar sus datos registrados.{% endblock %}
+{% block dashboard_content %}
+<section class="egresado-card egresado-card--wide">
+    <div class="egresado-card__header">
+        <div>
+            <h3 class="egresado-card__title">Filtros de búsqueda</h3>
+            <p class="egresado-card__text">Ingrese uno o ambos criterios para listar alumnos.</p>
+        </div>
+    </div>
+
+    <form method="get" class="egresado-inline-form" novalidate>
+        <div class="egresado-form__field">
+            <label class="egresado-form__label" for="id_dni">DNI</label>
+            <input
+                class="egresado-form__input"
+                id="id_dni"
+                name="dni"
+                type="text"
+                inputmode="numeric"
+                placeholder="Ej. 12345678"
+                value="{{ dni_buscado }}"
+            >
+        </div>
+        <div class="egresado-form__field">
+            <label class="egresado-form__label" for="id_codigo">Código</label>
+            <input
+                class="egresado-form__input"
+                id="id_codigo"
+                name="codigo"
+                type="text"
+                placeholder="Ej. 20201234"
+                value="{{ codigo_buscado }}"
+            >
+        </div>
+        <div class="egresado-inline-form__actions">
+            <button type="submit" class="egresado-btn egresado-btn--primary">Buscar</button>
+            <a class="egresado-btn egresado-btn--ghost" href="{% url 'maestro:gestor_consulta_alumnos' %}">Limpiar</a>
+        </div>
+    </form>
+</section>
+
+<section class="egresado-card egresado-card--wide">
+    <div class="egresado-card__header">
+        <div>
+            <h3 class="egresado-card__title">Resultados</h3>
+            {% if filtros_aplicados %}
+            <p class="egresado-card__text">{{ alumnos|length }} alumno{{ alumnos|length|pluralize }} encontrado{{ alumnos|length|pluralize }}.</p>
+            {% else %}
+            <p class="egresado-card__text">La tabla permanecerá vacía hasta que realice una búsqueda.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if alumnos %}
+    <div class="egresado-table-wrap">
+        <table class="egresado-table">
+            <thead>
+                <tr>
+                    <th>DNI</th>
+                    <th>Código</th>
+                    <th>Apellidos</th>
+                    <th>Nombres</th>
+                    <th>Facultad</th>
+                    <th>Escuela</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for alumno in alumnos %}
+                <tr>
+                    <td>{{ alumno.dni }}</td>
+                    <td>{{ alumno.codigo|default:"-" }}</td>
+                    <td>{{ alumno.apellido_paterno }} {{ alumno.apellido_materno }}</td>
+                    <td>{{ alumno.nombres|default:"-" }}</td>
+                    <td>{{ alumno.facultad|default:"-" }}</td>
+                    <td>{{ alumno.escuela|default:"-" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% elif filtros_aplicados %}
+    <div class="egresado-empty-state">
+        <h3 class="egresado-empty-state__title">No se encontraron alumnos</h3>
+        <p class="egresado-empty-state__text">Pruebe con otro DNI o código para volver a consultar.</p>
+    </div>
+    {% else %}
+    <div class="egresado-empty-state">
+        <h3 class="egresado-empty-state__title">Sin resultados aún</h3>
+        <p class="egresado-empty-state__text">Use los filtros superiores para cargar la tabla de alumnos.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

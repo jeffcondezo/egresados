@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Acceso{% endblock %} · Egresados UNHEVAL</title>
+    <link rel="stylesheet" href="{% static 'maestro/css/portal-login.css' %}">
+</head>
+<body class="auth-shell">
+    <div class="auth-shell__grid">
+        <aside
+            class="auth-shell__brand auth-shell__brand--with-bg"
+            style="--auth-brand-bg: url('{% static 'maestro/img/login-brand.jpg' %}');"
+            aria-hidden="true"
+        >
+            <div class="auth-shell__brand-inner">
+                <div class="auth-shell__mark-row">
+                    <img
+                        class="auth-shell__escudo"
+                        src="{% static 'maestro/img/escudo.png' %}"
+                        width="72"
+                        height="72"
+                        alt=""
+                    >
+                    <p class="auth-shell__mark">Universidad Nacional Hermilio Valdizán</p>
+                </div>
+                <h2 class="auth-shell__product">{% block auth_product %}Sistema de egresados{% endblock %}</h2>
+                <p class="auth-shell__tagline">{% block auth_tagline %}Acceso seguro para personal y egresados.{% endblock %}</p>
+            </div>
+        </aside>
+        <main class="auth-shell__main">
+            <div class="auth-shell__card">
+                <header class="auth-shell__card-head">
+                    {% block auth_badge %}<span class="auth-badge">Acceso</span>{% endblock %}
+                    <h1 class="auth-shell__title">{% block auth_title %}{% endblock %}</h1>
+                    <p class="auth-shell__subtitle">{% block auth_subtitle %}{% endblock %}</p>
+                    {% block auth_steps %}{% endblock %}
+                </header>
+                {% block auth_messages %}
+                {% if messages %}
+                <ul class="auth-messages">
+                    {% for message in messages %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endblock %}
+                {% block auth_body %}{% endblock %}
+                <footer class="auth-shell__footer">
+                    {% block auth_footer %}{% endblock %}
+                </footer>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

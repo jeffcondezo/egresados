@@ -1,0 +1,106 @@
+{% extends "maestro/egresado_dashboard_base.html" %}
+{% block dashboard_title %}Egresados · Perfil{% endblock %}
+{% block dashboard_heading %}Perfil del egresado{% endblock %}
+{% block dashboard_subtitle %}Revise sus datos personales, académicos y de procedencia.{% endblock %}
+{% block dashboard_content %}
+<section class="egresado-profile-hero">
+    <div>
+        <p class="egresado-profile-hero__eyebrow">Perfil</p>
+        <h3 class="egresado-profile-hero__title">{{ egresado.nombre_completo }}</h3>
+        <p class="egresado-profile-hero__text">
+            Revise su información registrada y actualice sus datos cuando sea necesario.
+        </p>
+    </div>
+    <a class="egresado-btn egresado-btn--primary egresado-btn--large" href="{% url 'maestro:egresado_perfil_editar' %}">
+        Editar perfil
+    </a>
+</section>
+
+<section class="egresado-grid">
+    <article class="egresado-card">
+        <h3 class="egresado-card__title">Información personal</h3>
+        <div class="egresado-data">
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">DNI</span>
+                <p class="egresado-data__value">{{ egresado.dni }}</p>
+            </div>
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Código</span>
+                <p class="egresado-data__value">{{ egresado.codigo|default:"No registrado" }}</p>
+            </div>
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Apellido paterno</span>
+                <p class="egresado-data__value">{{ egresado.apellido_paterno|default:"No registrado" }}</p>
+            </div>
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Apellido materno</span>
+                <p class="egresado-data__value">{{ egresado.apellido_materno|default:"No registrado" }}</p>
+            </div>
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Nombres</span>
+                <p class="egresado-data__value">{{ egresado.nombres|default:"No registrado" }}</p>
+            </div>
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Sexo</span>
+                <p class="egresado-data__value">{{ egresado.get_sexo_display|default:"No registrado" }}</p>
+            </div>
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Fecha de nacimiento</span>
+                <p class="egresado-data__value">{{ egresado.fecha_nacimiento|date:"d/m/Y"|default:"No registrada" }}</p>
+            </div>
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Celular</span>
+                <p class="egresado-data__value">{{ egresado.celular|default:"No registrado" }}</p>
+            </div>
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Correo</span>
+                <p class="egresado-data__value">{{ egresado.correo|default:"No registrado" }}</p>
+            </div>
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Dirección</span>
+                <p class="egresado-data__value">{{ egresado.direccion|default:"No registrada" }}</p>
+            </div>
+        </div>
+    </article>
+
+    <article class="egresado-card">
+        <h3 class="egresado-card__title">Datos académicos</h3>
+        <div class="egresado-data">
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Año de ingreso</span>
+                <p class="egresado-data__value">{{ egresado.anio_ingreso|default:"No registrado" }}</p>
+            </div>
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Año de egreso</span>
+                <p class="egresado-data__value">{{ egresado.anio_egreso|default:"No registrado" }}</p>
+            </div>
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Facultad</span>
+                <p class="egresado-data__value">{{ egresado.facultad|default:"No registrada" }}</p>
+            </div>
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Escuela</span>
+                <p class="egresado-data__value">{{ egresado.escuela|default:"No registrada" }}</p>
+            </div>
+        </div>
+    </article>
+
+    <article class="egresado-card egresado-card--wide">
+        <h3 class="egresado-card__title">Lugar de nacimiento</h3>
+        <div class="egresado-data">
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Departamento</span>
+                <p class="egresado-data__value">{{ egresado.departamento_nacimiento|default:"No registrado" }}</p>
+            </div>
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Provincia</span>
+                <p class="egresado-data__value">{{ egresado.provincia_nacimiento|default:"No registrada" }}</p>
+            </div>
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Distrito</span>
+                <p class="egresado-data__value">{{ egresado.distrito_nacimiento|default:"No registrado" }}</p>
+            </div>
+        </div>
+    </article>
+</section>
+{% endblock %}

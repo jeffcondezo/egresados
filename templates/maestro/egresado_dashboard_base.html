@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block dashboard_title %}Egresados{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'maestro/css/egresado-dashboard.css' %}">
+</head>
+<body class="egresado-dashboard-body">
+    <div class="egresado-dashboard">
+        <aside class="egresado-sidebar">
+            <div class="egresado-sidebar__brand">
+                <p class="egresado-sidebar__eyebrow">Panel de egresado</p>
+                <h1 class="egresado-sidebar__title">Sistema de seguimiento de egresados</h1>
+            </div>
+
+            <nav class="egresado-sidebar__nav" aria-label="Menú lateral">
+                <a
+                    class="egresado-sidebar__link{% if dashboard_section == 'inicio' %} egresado-sidebar__link--active{% endif %}"
+                    href="{% url 'maestro:egresado_panel' %}"
+                >
+                    Inicio
+                </a>
+                <span class="egresado-sidebar__link egresado-sidebar__link--disabled" aria-disabled="true">
+                    Encuesta
+                </span>
+                <span class="egresado-sidebar__link egresado-sidebar__link--disabled" aria-disabled="true">
+                    Manual
+                </span>
+            </nav>
+
+            <div class="egresado-sidebar__footer">
+                <p class="egresado-sidebar__meta">DNI {{ egresado.dni }}</p>
+            </div>
+        </aside>
+
+        <main class="egresado-main">
+            <header class="egresado-topbar">
+                <div>
+                    <h2 class="egresado-topbar__title">{% block dashboard_heading %}Administración del egresado{% endblock %}</h2>
+                    <p class="egresado-topbar__subtitle">{% block dashboard_subtitle %}Consulte su información registrada en el sistema.{% endblock %}</p>
+                </div>
+
+                <details class="egresado-usermenu">
+                    <summary class="egresado-userbox" aria-label="Usuario actual">
+                        <div class="egresado-userbox__avatar">{{ egresado.nombre_completo|first|upper }}</div>
+                        <div class="egresado-userbox__content">
+                            <p class="egresado-userbox__name">{{ egresado.nombre_completo }}</p>
+                            <p class="egresado-userbox__meta">Egresado activo</p>
+                        </div>
+                        <span class="egresado-userbox__caret">▾</span>
+                    </summary>
+                    <div class="egresado-usermenu__dropdown">
+                        <a class="egresado-usermenu__item" href="{% url 'maestro:egresado_perfil' %}">Ver perfil</a>
+                        <a class="egresado-usermenu__item egresado-usermenu__item--danger" href="{% url 'maestro:egresado_logout' %}">Cerrar sesión</a>
+                    </div>
+                </details>
+            </header>
+
+            {% if messages %}
+            <div class="egresado-messages">
+                {% for message in messages %}
+                <div class="egresado-message egresado-message--{{ message.tags|default:'info' }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block dashboard_content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>

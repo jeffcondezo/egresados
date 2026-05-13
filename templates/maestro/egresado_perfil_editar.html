@@ -1,0 +1,43 @@
+{% extends "maestro/egresado_dashboard_base.html" %}
+{% block dashboard_title %}Egresados · Editar perfil{% endblock %}
+{% block dashboard_heading %}Editar perfil{% endblock %}
+{% block dashboard_subtitle %}Actualice sus datos personales, académicos y de procedencia.{% endblock %}
+{% block dashboard_content %}
+<section class="egresado-grid">
+    <article class="egresado-card egresado-card--wide">
+        <div class="egresado-card__header">
+            <h3 class="egresado-card__title">Formulario de edición</h3>
+            <a class="egresado-btn egresado-btn--ghost" href="{% url 'maestro:egresado_perfil' %}">Volver al perfil</a>
+        </div>
+
+        <form method="post" class="egresado-form" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="egresado-message egresado-message--error">
+                {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="egresado-form__grid">
+                {% for field in form %}
+                <div class="egresado-form__field{% if field.name == 'direccion' %} egresado-form__field--wide{% endif %}">
+                    <label class="egresado-form__label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                    <div class="egresado-form__error">{{ field.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="egresado-form__actions">
+                <button type="submit" class="egresado-btn egresado-btn--primary">Guardar cambios</button>
+                <a class="egresado-btn egresado-btn--ghost" href="{% url 'maestro:egresado_perfil' %}">Cancelar</a>
+            </div>
+        </form>
+    </article>
+</section>
+{% endblock %}

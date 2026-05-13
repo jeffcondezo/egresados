@@ -1,0 +1,38 @@
+{% extends "maestro/egresado_dashboard_base.html" %}
+{% block dashboard_title %}Egresados · Inicio{% endblock %}
+{% block dashboard_content %}
+<section class="egresado-hero">
+    <p class="egresado-hero__eyebrow">Bienvenido</p>
+    <h3 class="egresado-hero__title">Hola, {{ egresado.nombres|default:egresado.nombre_completo }}.</h3>
+    <p class="egresado-hero__text">
+        Bienvenido al sistema de egresados de la Universidad Nacional Hermilio Valdizán.
+        Su acceso fue verificado correctamente.
+    </p>
+</section>
+
+<section class="egresado-grid">
+    <article class="egresado-card egresado-card--wide">
+        <h3 class="egresado-card__title">Datos principales</h3>
+        <div class="egresado-data egresado-data--triple">
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Nombres</span>
+                <p class="egresado-data__value">{{ egresado.nombres|default:"No registrado" }}</p>
+            </div>
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Apellido paterno</span>
+                <p class="egresado-data__value">{{ egresado.apellido_paterno|default:"No registrado" }}</p>
+            </div>
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Apellido materno</span>
+                <p class="egresado-data__value">{{ egresado.apellido_materno|default:"No registrado" }}</p>
+            </div>
+        </div>
+    </article>
+    <article class="egresado-card egresado-card--wide">
+        <h3 class="egresado-card__title">Mensaje de bienvenida</h3>
+        <p class="egresado-data__value">
+            Use el icono de usuario en la esquina superior derecha para revisar su perfil o cerrar sesión.
+        </p>
+    </article>
+</section>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "maestro/auth_layout.html" %}
+{% block title %}Egresados · DNI{% endblock %}
+{% block auth_product %}Acceso egresados{% endblock %}
+{% block auth_tagline %}Verifique su identidad con su DNI y apellido paterno registrados.{% endblock %}
+{% block auth_badge %}<span class="auth-badge">Egresados</span>{% endblock %}
+{% block auth_title %}Ingreso al sistema{% endblock %}
+{% block auth_subtitle %}Paso 1 de 2: ingrese su número de DNI.{% endblock %}
+{% block auth_steps %}
+<div class="auth-steps" aria-label="Progreso">
+    <span class="auth-step auth-step--active">1 · DNI</span>
+    <span class="auth-step">2 · Apellido paterno</span>
+</div>
+{% endblock %}
+{% block auth_body %}
+<form method="post" action="" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <ul class="auth-nonfield">{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+    <div class="auth-field">
+        <label for="id_dni">{{ form.dni.label }}</label>
+        {{ form.dni }}
+        {% if form.dni.errors %}<span class="auth-field__hint">{{ form.dni.errors.0 }}</span>{% endif %}
+    </div>
+    <div class="auth-actions">
+        <button type="submit" class="auth-btn auth-btn--primary">Continuar</button>
+    </div>
+</form>
+{% endblock %}
+{% block auth_footer %}
+<div class="auth-footer-switch">
+    <span class="auth-footer-switch__label">¿Personal institucional?</span>
+    <a href="{% url 'maestro:gestor_login' %}" class="auth-btn auth-btn--ghost">Ingreso gestores</a>
+</div>
+{% endblock %}

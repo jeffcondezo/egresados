@@ -1,0 +1,33 @@
+{% extends "maestro/auth_layout.html" %}
+{% block title %}Egresados · Verificación{% endblock %}
+{% block auth_product %}Acceso egresados{% endblock %}
+{% block auth_tagline %}Verifique su identidad con su DNI y apellido paterno registrados.{% endblock %}
+{% block auth_badge %}<span class="auth-badge">Egresados</span>{% endblock %}
+{% block auth_title %}Confirmar datos{% endblock %}
+{% block auth_subtitle %}Paso 2 de 2: ingrese su apellido paterno tal como consta en el registro (DNI {{ dni_mostrado }}).{% endblock %}
+{% block auth_steps %}
+<div class="auth-steps" aria-label="Progreso">
+    <span class="auth-step auth-step--done">1 · DNI</span>
+    <span class="auth-step auth-step--active">2 · Apellido paterno</span>
+</div>
+{% endblock %}
+{% block auth_body %}
+<form method="post" action="" novalidate>
+    {% csrf_token %}
+    <div class="auth-field">
+        <label for="id_apellido_paterno">{{ form.apellido_paterno.label }}</label>
+        {{ form.apellido_paterno }}
+        {% if form.apellido_paterno.errors %}<span class="auth-field__hint">{{ form.apellido_paterno.errors.0 }}</span>{% endif %}
+    </div>
+    <div class="auth-actions">
+        <button type="submit" class="auth-btn auth-btn--primary">Ingresar</button>
+        <a class="auth-btn auth-btn--ghost" href="{% url 'maestro:egresado_ingreso_dni' %}">Cambiar DNI</a>
+    </div>
+</form>
+{% endblock %}
+{% block auth_footer %}
+<div class="auth-footer-switch auth-footer-switch--row">
+    <a href="{% url 'maestro:egresado_ingreso_dni' %}" class="auth-btn auth-btn--ghost">← Volver al DNI</a>
+    <a href="{% url 'maestro:gestor_login' %}" class="auth-btn auth-btn--ghost">Ingreso gestores</a>
+</div>
+{% endblock %}

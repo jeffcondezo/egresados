@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Egresados{% endblock %}</title>
+    <style>
+        :root { --fg: #1a1a2e; --muted: #5c5c76; --accent: #2563eb; --bg: #f4f6fb; --card: #fff; --border: #e2e8f0; }
+        * { box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; color: var(--fg); background: var(--bg); line-height: 1.5; }
+        main { max-width: 28rem; margin: 2rem auto; padding: 0 1rem; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+        h1 { font-size: 1.25rem; margin: 0 0 1rem; }
+        p.muted { color: var(--muted); font-size: .9rem; margin: 0 0 1rem; }
+        label { display: block; font-weight: 600; font-size: .85rem; margin-bottom: .35rem; }
+        input[type="text"], input[type="password"] { width: 100%; padding: .6rem .75rem; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; }
+        .actions { margin-top: 1.25rem; display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+        button, .btn { cursor: pointer; border: 0; border-radius: 8px; padding: .55rem 1rem; font-size: .95rem; font-weight: 600; text-decoration: none; display: inline-block; }
+        button.primary, .btn.primary { background: var(--accent); color: #fff; }
+        .btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--border); }
+        .messages { list-style: none; padding: 0; margin: 0 0 1rem; }
+        .messages li { padding: .5rem .75rem; border-radius: 8px; font-size: .9rem; margin-bottom: .35rem; }
+        .messages .error { background: #fef2f2; color: #b91c1c; }
+        .messages .success { background: #ecfdf5; color: #047857; }
+        .messages .warning { background: #fffbeb; color: #b45309; }
+        .messages .info { background: #eff6ff; color: #1d4ed8; }
+        nav.links { margin-top: 1rem; font-size: .9rem; }
+        nav.links a { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <main>
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

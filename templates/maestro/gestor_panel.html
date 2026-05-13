@@ -1,0 +1,44 @@
+{% extends "maestro/gestor_dashboard_base.html" %}
+{% block dashboard_title %}Gestores · Inicio{% endblock %}
+{% block dashboard_content %}
+<section class="egresado-hero">
+    <p class="egresado-hero__eyebrow">Bienvenido</p>
+    <h3 class="egresado-hero__title">Hola, {{ user.get_full_name|default:user.get_username }}.</h3>
+    <p class="egresado-hero__text">
+        Desde este panel puede revisar el estado general del módulo y acceder a la consulta de alumnos
+        por DNI o código.
+    </p>
+</section>
+
+<section class="egresado-grid">
+    <article class="egresado-card">
+        <h3 class="egresado-card__title">Accesos rápidos</h3>
+        <div class="egresado-actions">
+            <a class="egresado-btn egresado-btn--primary" href="{% url 'maestro:gestor_consulta_alumnos' %}">Consulta alumnos</a>
+            <a class="egresado-btn egresado-btn--ghost" href="/admin/">Administración</a>
+        </div>
+    </article>
+
+    <article class="egresado-card">
+        <h3 class="egresado-card__title">Sesión actual</h3>
+        <div class="egresado-data">
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Usuario</span>
+                <p class="egresado-data__value">{{ user.get_username }}</p>
+            </div>
+            <div class="egresado-data__item">
+                <span class="egresado-data__label">Nombre</span>
+                <p class="egresado-data__value">{{ user.get_full_name|default:"No registrado" }}</p>
+            </div>
+        </div>
+    </article>
+
+    <article class="egresado-card egresado-card--wide">
+        <h3 class="egresado-card__title">Resumen</h3>
+        <p class="egresado-data__value">
+            Use el menú lateral para ir a <strong>Consulta alumnos</strong>. La búsqueda se realiza
+            con filtros por DNI o código y la tabla se mantiene vacía hasta que se ingrese al menos un criterio.
+        </p>
+    </article>
+</section>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "maestro/auth_layout.html" %}
+{% block title %}Gestores · Ingreso{% endblock %}
+{% block auth_product %}Portal de gestión{% endblock %}
+{% block auth_tagline %}Ingrese con las credenciales asignadas por la institución.{% endblock %}
+{% block auth_badge %}<span class="auth-badge">Personal gestor</span>{% endblock %}
+{% block auth_title %}Inicio de sesión{% endblock %}
+{% block auth_subtitle %}Usuario y contraseña institucionales.{% endblock %}
+{% block auth_body %}
+<form method="post" action="" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <ul class="auth-nonfield">{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+    <div class="auth-field">
+        <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+        {{ form.username }}
+        {% if form.username.errors %}<span class="auth-field__hint">{{ form.username.errors.0 }}</span>{% endif %}
+    </div>
+    <div class="auth-field">
+        <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+        {{ form.password }}
+        {% if form.password.errors %}<span class="auth-field__hint">{{ form.password.errors.0 }}</span>{% endif %}
+    </div>
+    <div class="auth-actions">
+        <button type="submit" class="auth-btn auth-btn--primary">Ingresar</button>
+    </div>
+</form>
+{% endblock %}
+{% block auth_footer %}
+<div class="auth-footer-switch">
+    <span class="auth-footer-switch__label">¿Es egresado?</span>
+    <a href="{% url 'maestro:egresado_ingreso_dni' %}" class="auth-btn auth-btn--ghost">Ingreso egresados</a>
+</div>
+{% endblock %}
