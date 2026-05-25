@@ -1,0 +1,98 @@
+{% extends "maestro/gestor_dashboard_base.html" %}
+{% load static %}
+{% block dashboard_title %}Gestores · Editar encuesta{% endblock %}
+{% block dashboard_heading %}{{ encuesta.titulo }}{% endblock %}
+{% block dashboard_subtitle %}Edite los datos de la encuesta y administre sus preguntas.{% endblock %}
+{% block dashboard_content %}
+<link rel="stylesheet" href="{% static 'maestro/css/encuesta-gestor.css' %}">
+<section class="egresado-card egresado-card--wide">
+    <div class="egresado-card__header">
+        <div>
+            <h3 class="egresado-card__title">Datos de la encuesta</h3>
+            <p class="egresado-card__text">
+                Estado:
+                <span class="encuesta-badge encuesta-badge--{{ encuesta.estado }}">{{ encuesta.get_estado_display }}</span>
+            </p>
+        </div>
+        <div class="egresado-actions">
+            <a class="egresado-btn egresado-btn--ghost" href="{% url 'maestro:gestor_encuesta_detalle' encuesta.pk %}">Vista previa</a>
+            <a class="egresado-btn egresado-btn--ghost" href="{% url 'maestro:gestor_encuestas_lista' %}">Listado</a>
+        </div>
+    </div>
+
+    <form method="post" class="egresado-form" novalidate>
+        {% csrf_token %}
+        <div class="egresado-form__grid">
+            {% for field in form %}
+            <div class="egresado-form__field{% if field.name == 'descripcion' %} egresado-form__field--wide{% endif %}">
+                <label class="egresado-form__label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<div class="egresado-form__error">{{ field.errors.0 }}</div>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="egresado-form__actions">
+            <button type="submit" class="egresado-btn egresado-btn--primary">Guardar datos</button>
+        </div>
+    </form>
+</section>
+
+<section class="egresado-card egresado-card--wide">
+    <div class="egresado-card__header">
+        <div>
+            <h3 class="egresado-card__title">Preguntas</h3>
+            <p class="egresado-card__text">{{ preguntas|length }} pregunta{{ preguntas|length|pluralize }}.</p>
+        </div>
+        <a class="egresado-btn egresado-btn--primary" href="{% url 'maestro:gestor_pregunta_crear' encuesta.pk %}">Agregar pregunta</a>
+    </div>
+
+    {% if preguntas %}
+    <div class="egresado-table-wrap">
+        <table class="egresado-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Pregunta</th>
+                    <th>Tipo</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pregunta in preguntas %}
+                <tr>
+                    <td>{{ pregunta.orden }}</td>
+                    <td>{{ pregunta.titulo }}</td>
+                    <td>
+                        <span class="encuesta-badge encuesta-badge--tipo">{{ pregunta.get_tipo_display }}</span>
+                        {% if pregunta.tipo == 'matriz_seleccion' %}
+                        <span class="egresado-card__text"> ({{ pregunta.filas_matriz.count }}×{{ pregunta.opciones.count }})</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a class="egresado-btn egresado-btn--ghost egresado-btn--sm" href="{% url 'maestro:gestor_pregunta_editar' encuesta.pk pregunta.pk %}">Editar</a>
+                        <form method="post" action="{% url 'maestro:gestor_pregunta_eliminar' encuesta.pk pregunta.pk %}" class="encuesta-inline-form">
+                            {% csrf_token %}
+                            <button type="submit" class="egresado-btn egresado-btn--ghost egresado-btn--sm egresado-btn--danger" onclick="return confirm('¿Eliminar esta pregunta?');">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="egresado-empty-state">
+        <h3 class="egresado-empty-state__title">Sin preguntas</h3>
+        <p class="egresado-empty-state__text">Agregue al menos una pregunta antes de publicar la encuesta.</p>
+    </div>
+    {% endif %}
+
+    {% if encuesta.es_editable and preguntas %}
+    <div class="egresado-form__actions encuesta-publish-actions">
+        <a class="egresado-btn egresado-btn--primary" href="{% url 'maestro:gestor_encuesta_publicar' encuesta.pk %}">
+            Publicar encuesta
+        </a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

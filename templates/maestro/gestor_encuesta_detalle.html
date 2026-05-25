@@ -1,0 +1,150 @@
+{% extends "maestro/gestor_dashboard_base.html" %}
+{% load static %}
+{% block dashboard_title %}Gestores · {{ encuesta.titulo }}{% endblock %}
+{% block dashboard_heading %}{{ encuesta.titulo }}{% endblock %}
+{% block dashboard_subtitle %}
+Estado: <span class="encuesta-badge encuesta-badge--{{ encuesta.estado }}">{{ encuesta.get_estado_display }}</span>
+{% if encuesta.estado == 'publicada' %}
+· Alcance: <span class="encuesta-badge encuesta-badge--alcance">{{ encuesta.alcance_display }}</span>
+{% endif %}
+{% endblock %}
+{% block dashboard_content %}
+<link rel="stylesheet" href="{% static 'maestro/css/encuesta-gestor.css' %}">
+<section class="egresado-card egresado-card--wide">
+    <div class="egresado-card__header">
+        <div>
+            <h3 class="egresado-card__title">Resumen</h3>
+            {% if encuesta.descripcion %}
+            <p class="egresado-card__text">{{ encuesta.descripcion }}</p>
+            {% endif %}
+            <p class="egresado-card__text">{{ preguntas|length }} pregunta{{ preguntas|length|pluralize }}.</p>
+        </div>
+        <div class="egresado-actions">
+            {% if encuesta.es_editable %}
+            <a class="egresado-btn egresado-btn--primary" href="{% url 'maestro:gestor_encuesta_editar' encuesta.pk %}">Editar</a>
+            {% endif %}
+            <a class="egresado-btn egresado-btn--ghost" href="{% url 'maestro:gestor_encuestas_lista' %}">Listado</a>
+        </div>
+    </div>
+</section>
+
+{% if preguntas %}
+<section class="egresado-grid">
+    {% for pregunta in preguntas %}
+    <article class="egresado-card egresado-card--wide encuesta-preview-card">
+        <div class="egresado-card__header">
+            <div>
+                <p class="egresado-hero__eyebrow">Pregunta {{ pregunta.orden }}</p>
+                <h3 class="egresado-card__title">{{ pregunta.titulo }}{% if pregunta.obligatoria %} <span class="encuesta-required">*</span>{% endif %}</h3>
+                <span class="encuesta-badge encuesta-badge--tipo">{{ pregunta.get_tipo_display }}</span>
+            </div>
+        </div>
+
+        <div class="encuesta-preview-field">
+            {% if pregunta.tipo == 'seleccion_unica' %}
+            {% with opciones=pregunta.opciones.all %}
+            {% if opciones %}
+            <select class="egresado-form__select encuesta-preview-select" aria-label="Vista previa de lista desplegable">
+                <option value="" selected>Seleccione una opción</option>
+                {% for opcion in opciones %}
+                <option value="{{ opcion.pk }}">{{ opcion.texto }}</option>
+                {% endfor %}
+            </select>
+            <p class="egresado-card__text encuesta-preview-hint">{{ opciones|length }} opción{{ opciones|length|pluralize:"es" }} en la lista.</p>
+            {% else %}
+            <p class="egresado-card__text">Sin opciones definidas para esta lista desplegable.</p>
+            {% endif %}
+            {% endwith %}
+            {% elif pregunta.tipo == 'seleccion_multiple' %}
+            <div class="encuesta-preview-checkboxes">
+                {% for opcion in pregunta.opciones.all %}
+                <label class="encuesta-preview-check">
+                    <input type="checkbox" disabled> {{ opcion.texto }}
+                </label>
+                {% empty %}
+                <p class="egresado-card__text">Sin opciones definidas.</p>
+                {% endfor %}
+            </div>
+            {% elif pregunta.tipo == 'texto_largo' %}
+            <textarea class="egresado-form__textarea" rows="4" disabled placeholder="Respuesta de texto amplio"></textarea>
+            {% elif pregunta.tipo == 'texto_corto' %}
+            <input class="egresado-form__input" type="text" disabled placeholder="Máx. {{ pregunta.texto_maximo }} caracteres">
+            {% elif pregunta.tipo == 'entero' %}
+            <input class="egresado-form__input" type="number" step="1" disabled placeholder="Número entero">
+            {% elif pregunta.tipo == 'decimal' %}
+            <input class="egresado-form__input" type="number" step="any" disabled placeholder="Número decimal">
+            {% elif pregunta.tipo == 'matriz_seleccion' %}
+            {% with columnas=pregunta.opciones.all filas=pregunta.filas_matriz.all %}
+            {% if columnas and filas %}
+            <div class="encuesta-matriz-wrap" data-matriz-preview="{{ pregunta.pk }}">
+                <table class="encuesta-matriz">
+                    <thead>
+                        <tr>
+                            <th scope="col"></th>
+                            {% for col in columnas %}
+                            <th scope="col">{{ col.texto }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fila in filas %}
+                        <tr>
+                            <th scope="row" class="encuesta-matriz__fila">{{ fila.texto }}</th>
+                            {% for col in columnas %}
+                            <td>
+                                <input
+                                    type="radio"
+                                    name="preview-{{ pregunta.pk }}-{{ fila.pk }}"
+                                    aria-label="{{ fila.texto }} — {{ col.texto }}"
+                                >
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p class="encuesta-matriz__clear">
+                    <a href="#" class="encuesta-matriz__clear-link" data-matriz-clear="{{ pregunta.pk }}">Borrar selección</a>
+                </p>
+            </div>
+            {% else %}
+            <p class="egresado-card__text">
+                Matriz incompleta: requiere al menos 2 columnas y 1 fila con texto.
+            </p>
+            {% endif %}
+            {% endwith %}
+            {% else %}
+            <p class="egresado-card__text">Vista previa no disponible para este tipo de pregunta.</p>
+            {% endif %}
+        </div>
+    </article>
+    {% endfor %}
+</section>
+{% else %}
+<section class="egresado-card egresado-card--wide">
+    <div class="egresado-empty-state">
+        <h3 class="egresado-empty-state__title">Sin preguntas</h3>
+        <p class="egresado-empty-state__text">Esta encuesta aún no tiene preguntas.</p>
+        {% if encuesta.es_editable %}
+        <a class="egresado-btn egresado-btn--primary" href="{% url 'maestro:gestor_encuesta_editar' encuesta.pk %}">Agregar preguntas</a>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+<script>
+(function () {
+    document.querySelectorAll('[data-matriz-clear]').forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            const pk = link.getAttribute('data-matriz-clear');
+            const wrap = document.querySelector('[data-matriz-preview="' + pk + '"]');
+            if (wrap) {
+                wrap.querySelectorAll('input[type="radio"]').forEach(function (radio) {
+                    radio.checked = false;
+                });
+            }
+        });
+    });
+})();
+</script>
+{% endblock %}

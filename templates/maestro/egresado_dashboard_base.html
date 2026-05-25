@@ -22,9 +22,12 @@
                 >
                     Inicio
                 </a>
-                <span class="egresado-sidebar__link egresado-sidebar__link--disabled" aria-disabled="true">
+                <a
+                    class="egresado-sidebar__link{% if dashboard_section == 'encuestas' %} egresado-sidebar__link--active{% endif %}"
+                    href="{% url 'maestro:egresado_encuestas_lista' %}"
+                >
                     Encuesta
-                </span>
+                </a>
                 <span class="egresado-sidebar__link egresado-sidebar__link--disabled" aria-disabled="true">
                     Manual
                 </span>

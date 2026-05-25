@@ -28,6 +28,12 @@
                 >
                     Consulta alumnos
                 </a>
+                <a
+                    class="egresado-sidebar__link{% if dashboard_section == 'encuestas' %} egresado-sidebar__link--active{% endif %}"
+                    href="{% url 'maestro:gestor_encuestas_lista' %}"
+                >
+                    Encuestas
+                </a>
             </nav>
 
             <div class="egresado-sidebar__footer">

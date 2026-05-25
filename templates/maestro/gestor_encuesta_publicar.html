@@ -1,0 +1,73 @@
+{% extends "maestro/gestor_dashboard_base.html" %}
+{% load static %}
+{% block dashboard_title %}Gestores · Publicar encuesta{% endblock %}
+{% block dashboard_heading %}Publicar: {{ encuesta.titulo }}{% endblock %}
+{% block dashboard_subtitle %}Defina el alcance de la encuesta antes de publicarla. No podrá editarla después.{% endblock %}
+{% block dashboard_content %}
+<link rel="stylesheet" href="{% static 'maestro/css/encuesta-gestor.css' %}">
+<section class="egresado-card egresado-card--wide">
+    <div class="egresado-card__header">
+        <div>
+            <h3 class="egresado-card__title">Resumen</h3>
+            {% if encuesta.descripcion %}
+            <p class="egresado-card__text">{{ encuesta.descripcion }}</p>
+            {% endif %}
+            <p class="egresado-card__text">{{ preguntas|length }} pregunta{{ preguntas|length|pluralize }}.</p>
+        </div>
+        <a class="egresado-btn egresado-btn--ghost" href="{% url 'maestro:gestor_encuesta_editar' encuesta.pk %}">Volver al editor</a>
+    </div>
+</section>
+
+<section class="egresado-card egresado-card--wide">
+    <h3 class="egresado-card__title">Alcance de publicación</h3>
+    <form method="post" class="egresado-form encuesta-publicar-form" novalidate>
+        {% csrf_token %}
+        <fieldset class="encuesta-alcance-fieldset">
+            <legend class="egresado-form__label">{{ form.alcance.label }}</legend>
+            {% for radio in form.alcance %}
+            <label class="encuesta-alcance-option">
+                {{ radio.tag }}
+                <span>{{ radio.choice_label }}</span>
+            </label>
+            {% endfor %}
+            {% if form.alcance.errors %}<div class="egresado-form__error">{{ form.alcance.errors.0 }}</div>{% endif %}
+        </fieldset>
+
+        <div class="egresado-form__field encuesta-escuela-field" id="encuesta-escuela-field">
+            <label class="egresado-form__label" for="{{ form.escuela.id_for_label }}">{{ form.escuela.label }}</label>
+            {{ form.escuela }}
+            {% if form.escuela.errors %}<div class="egresado-form__error">{{ form.escuela.errors.0 }}</div>{% endif %}
+            <p class="egresado-card__text">Solo egresados con esta escuela en su perfil verán la encuesta.</p>
+        </div>
+
+        {% if form.non_field_errors %}
+        <div class="egresado-form__error">{{ form.non_field_errors.0 }}</div>
+        {% endif %}
+
+        <div class="egresado-form__actions">
+            <button type="submit" class="egresado-btn egresado-btn--primary" onclick="return confirm('¿Publicar esta encuesta? No podrá editarla después.');">
+                Confirmar y publicar
+            </button>
+            <a class="egresado-btn egresado-btn--ghost" href="{% url 'maestro:gestor_encuesta_editar' encuesta.pk %}">Cancelar</a>
+        </div>
+    </form>
+</section>
+
+<script>
+(function () {
+    const form = document.querySelector('.encuesta-publicar-form');
+    if (!form) return;
+    const escuelaField = document.getElementById('encuesta-escuela-field');
+    const radios = form.querySelectorAll('input[name="alcance"]');
+    function syncEscuela() {
+        const seleccion = form.querySelector('input[name="alcance"]:checked');
+        const esEscuela = seleccion && seleccion.value === 'escuela';
+        if (escuelaField) {
+            escuelaField.style.display = esEscuela ? '' : 'none';
+        }
+    }
+    radios.forEach(function (r) { r.addEventListener('change', syncEscuela); });
+    syncEscuela();
+})();
+</script>
+{% endblock %}

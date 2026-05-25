@@ -1,0 +1,169 @@
+{% extends "maestro/gestor_dashboard_base.html" %}
+{% load static %}
+{% block dashboard_title %}Gestores · {% if es_edicion %}Editar pregunta{% else %}Nueva pregunta{% endif %}{% endblock %}
+{% block dashboard_heading %}{% if es_edicion %}Editar pregunta{% else %}Nueva pregunta{% endif %}{% endblock %}
+{% block dashboard_subtitle %}Encuesta: {{ encuesta.titulo }}{% endblock %}
+
+{% block dashboard_content %}
+<link rel="stylesheet" href="{% static 'maestro/css/encuesta-gestor.css' %}">
+
+<section class="egresado-card egresado-card--wide">
+    <div class="egresado-card__header">
+        <h3 class="egresado-card__title">Configuración de la pregunta</h3>
+        <a class="egresado-btn egresado-btn--ghost" href="{% url 'maestro:gestor_encuesta_editar' encuesta.pk %}">Volver al editor</a>
+    </div>
+
+    <form method="post" class="egresado-form encuesta-pregunta-form" id="encuesta-pregunta-form" novalidate>
+        {% csrf_token %}
+
+        {% if opciones_error %}
+        <div class="egresado-message egresado-message--error">{{ opciones_error }}</div>
+        {% endif %}
+        {% if filas_error %}
+        <div class="egresado-message egresado-message--error">{{ filas_error }}</div>
+        {% endif %}
+
+        {% if form.non_field_errors %}
+        <div class="egresado-message egresado-message--error">
+            {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="egresado-form__grid">
+            <div class="egresado-form__field egresado-form__field--wide">
+                <label class="egresado-form__label" for="{{ form.titulo.id_for_label }}">{{ form.titulo.label }}</label>
+                {{ form.titulo }}
+                {% if form.titulo.errors %}<div class="egresado-form__error">{{ form.titulo.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="egresado-form__field">
+                <label class="egresado-form__label" for="{{ form.tipo.id_for_label }}">{{ form.tipo.label }}</label>
+                {{ form.tipo }}
+                {% if form.tipo.errors %}<div class="egresado-form__error">{{ form.tipo.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="egresado-form__field encuesta-field-texto-maximo" id="field-texto-maximo">
+                <label class="egresado-form__label" for="{{ form.texto_maximo.id_for_label }}">{{ form.texto_maximo.label }}</label>
+                {{ form.texto_maximo }}
+                {% if form.texto_maximo.errors %}<div class="egresado-form__error">{{ form.texto_maximo.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="egresado-form__field">
+                <label class="egresado-form__label encuesta-checkbox-label" for="{{ form.obligatoria.id_for_label }}">
+                    {{ form.obligatoria }} {{ form.obligatoria.label }}
+                </label>
+                {% if form.obligatoria.errors %}<div class="egresado-form__error">{{ form.obligatoria.errors.0 }}</div>{% endif %}
+            </div>
+        </div>
+
+        <div class="encuesta-opciones-block" id="opciones-block">
+            <h4 class="encuesta-opciones-block__title" id="opciones-block-title">Opciones de respuesta</h4>
+            <p class="egresado-card__text" id="opciones-block-help">
+                Ingrese al menos dos opciones. Puede escribir y elegir sugerencias frecuentes
+                o aplicar una plantilla completa.
+            </p>
+
+            <div class="encuesta-plantillas">
+                <label class="egresado-form__label" for="id-plantilla-opciones">Completar con plantilla</label>
+                <div class="encuesta-plantillas__row">
+                    <select class="egresado-form__select" id="id-plantilla-opciones">
+                        <option value="">Seleccione una plantilla…</option>
+                        {% for plantilla in opciones_plantillas %}
+                        <option value="{{ plantilla.id }}">{{ plantilla.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" class="egresado-btn egresado-btn--ghost" id="btn-aplicar-plantilla">
+                        Aplicar plantilla
+                    </button>
+                </div>
+            </div>
+
+            <datalist id="opciones-sugerencias">
+                {% for sugerencia in opciones_sugerencias %}
+                <option value="{{ sugerencia }}"></option>
+                {% endfor %}
+            </datalist>
+
+            {{ formset.management_form }}
+
+            <div id="opciones-forms">
+                {% for opcion_form in formset %}
+                <div class="encuesta-opcion-row" data-form-index="{{ forloop.counter0 }}">
+                    {% for hidden in opcion_form.hidden_fields %}{{ hidden }}{% endfor %}
+                    <div class="encuesta-opcion-row__input">
+                        {{ opcion_form.texto }}
+                        {% if opcion_form.texto.errors %}<div class="egresado-form__error">{{ opcion_form.texto.errors.0 }}</div>{% endif %}
+                    </div>
+                    {% if opcion_form.DELETE %}
+                    <label class="encuesta-opcion-row__delete">
+                        {{ opcion_form.DELETE }} Eliminar
+                    </label>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <button type="button" class="egresado-btn egresado-btn--ghost" id="btn-agregar-opcion">Agregar columna</button>
+        </div>
+
+        <div class="encuesta-opciones-block encuesta-filas-block is-hidden" id="filas-matriz-block">
+            <h4 class="encuesta-opciones-block__title">Filas (ítems a calificar)</h4>
+            <p class="egresado-card__text">
+                Defina cada ítem que el encuestado calificará con la escala de columnas.
+                Ingrese al menos una fila.
+            </p>
+
+            {{ filas_formset.management_form }}
+
+            <div id="filas-matriz-forms">
+                {% for fila_form in filas_formset %}
+                <div class="encuesta-fila-row encuesta-opcion-row" data-form-index="{{ forloop.counter0 }}">
+                    {% for hidden in fila_form.hidden_fields %}{{ hidden }}{% endfor %}
+                    <div class="encuesta-opcion-row__input encuesta-fila-row__input">
+                        {{ fila_form.texto }}
+                        {% if fila_form.texto.errors %}<div class="egresado-form__error">{{ fila_form.texto.errors.0 }}</div>{% endif %}
+                    </div>
+                    {% if fila_form.DELETE %}
+                    <label class="encuesta-opcion-row__delete">
+                        {{ fila_form.DELETE }} Eliminar
+                    </label>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <button type="button" class="egresado-btn egresado-btn--ghost" id="btn-agregar-fila">Agregar fila</button>
+        </div>
+
+        <div class="egresado-form__actions">
+            <button type="submit" class="egresado-btn egresado-btn--primary">{% if es_edicion %}Guardar pregunta{% else %}Agregar pregunta{% endif %}</button>
+            <a class="egresado-btn egresado-btn--ghost" href="{% url 'maestro:gestor_encuesta_editar' encuesta.pk %}">Cancelar</a>
+        </div>
+    </form>
+</section>
+
+<template id="opcion-empty-template">
+    <div class="encuesta-opcion-row" data-form-index="__prefix__">
+        <div class="encuesta-opcion-row__input">
+            <input type="text" name="opciones-__prefix__-texto" class="egresado-form__input encuesta-opcion-texto" list="opciones-sugerencias" placeholder="Texto de la opción" id="id_opciones-__prefix__-texto" autocomplete="off">
+        </div>
+        <label class="encuesta-opcion-row__delete">
+            <input type="checkbox" name="opciones-__prefix__-DELETE" id="id_opciones-__prefix__-DELETE"> Eliminar
+        </label>
+    </div>
+</template>
+
+<template id="fila-empty-template">
+    <div class="encuesta-fila-row encuesta-opcion-row" data-form-index="__prefix__">
+        <div class="encuesta-opcion-row__input encuesta-fila-row__input">
+            <input type="text" name="filas_matriz-__prefix__-texto" class="egresado-form__input encuesta-fila-texto" placeholder="Descripción del ítem a calificar" id="id_filas_matriz-__prefix__-texto">
+        </div>
+        <label class="encuesta-opcion-row__delete">
+            <input type="checkbox" name="filas_matriz-__prefix__-DELETE" id="id_filas_matriz-__prefix__-DELETE"> Eliminar
+        </label>
+    </div>
+</template>
+
+{{ opciones_plantillas|json_script:"opciones-plantillas-data" }}
+<script src="{% static 'maestro/js/encuesta-pregunta.js' %}?v=4"></script>
+{% endblock %}

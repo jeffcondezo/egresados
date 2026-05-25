@@ -1,0 +1,67 @@
+{% extends "maestro/gestor_dashboard_base.html" %}
+{% load static %}
+{% block dashboard_title %}Gestores · Encuestas{% endblock %}
+{% block dashboard_heading %}Encuestas{% endblock %}
+{% block dashboard_subtitle %}Cree y administre encuestas con preguntas de distintos tipos de respuesta.{% endblock %}
+{% block dashboard_content %}
+<link rel="stylesheet" href="{% static 'maestro/css/encuesta-gestor.css' %}">
+<section class="egresado-card egresado-card--wide">
+    <div class="egresado-card__header">
+        <div>
+            <h3 class="egresado-card__title">Listado de encuestas</h3>
+            <p class="egresado-card__text">{{ encuestas|length }} encuesta{{ encuestas|length|pluralize }} registrada{{ encuestas|length|pluralize }}.</p>
+        </div>
+        <a class="egresado-btn egresado-btn--primary" href="{% url 'maestro:gestor_encuesta_crear' %}">Nueva encuesta</a>
+    </div>
+
+    {% if encuestas %}
+    <div class="egresado-table-wrap">
+        <table class="egresado-table">
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Estado</th>
+                    <th>Alcance</th>
+                    <th>Preguntas</th>
+                    <th>Actualizada</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for encuesta in encuestas %}
+                <tr>
+                    <td>{{ encuesta.titulo }}</td>
+                    <td>
+                        <span class="encuesta-badge encuesta-badge--{{ encuesta.estado }}">
+                            {{ encuesta.get_estado_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if encuesta.estado == 'publicada' %}
+                        <span class="encuesta-badge encuesta-badge--alcance">{{ encuesta.alcance_display }}</span>
+                        {% else %}
+                        <span class="egresado-card__text">—</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ encuesta.num_preguntas }}</td>
+                    <td>{{ encuesta.actualizado_en|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <a class="egresado-btn egresado-btn--ghost egresado-btn--sm" href="{% url 'maestro:gestor_encuesta_detalle' encuesta.pk %}">Ver</a>
+                        {% if encuesta.es_editable %}
+                        <a class="egresado-btn egresado-btn--ghost egresado-btn--sm" href="{% url 'maestro:gestor_encuesta_editar' encuesta.pk %}">Editar</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="egresado-empty-state">
+        <h3 class="egresado-empty-state__title">Sin encuestas</h3>
+        <p class="egresado-empty-state__text">Cree su primera encuesta para comenzar a agregar preguntas.</p>
+        <a class="egresado-btn egresado-btn--primary" href="{% url 'maestro:gestor_encuesta_crear' %}">Nueva encuesta</a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

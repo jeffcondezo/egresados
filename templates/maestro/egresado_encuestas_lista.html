@@ -1,0 +1,57 @@
+{% extends "maestro/egresado_dashboard_base.html" %}
+{% load static %}
+{% block dashboard_title %}Egresados · Encuestas{% endblock %}
+{% block dashboard_heading %}Encuestas{% endblock %}
+{% block dashboard_subtitle %}Encuestas publicadas disponibles para usted.{% endblock %}
+{% block dashboard_content %}
+<link rel="stylesheet" href="{% static 'maestro/css/encuesta-gestor.css' %}">
+<section class="egresado-card egresado-card--wide">
+    <div class="egresado-card__header">
+        <div>
+            <h3 class="egresado-card__title">Encuestas disponibles</h3>
+            <p class="egresado-card__text">{{ encuestas|length }} encuesta{{ encuestas|length|pluralize }}.</p>
+        </div>
+        <a class="egresado-btn egresado-btn--ghost" href="{% url 'maestro:egresado_panel' %}">Inicio</a>
+    </div>
+
+    {% if encuestas %}
+    <div class="egresado-table-wrap">
+        <table class="egresado-table">
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Su estado</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for encuesta in encuestas %}
+                <tr>
+                    <td>{{ encuesta.titulo }}</td>
+                    <td>
+                        {% if encuesta.ya_respondio %}
+                        <span class="encuesta-badge encuesta-badge--completada">Completada</span>
+                        {% else %}
+                        <span class="encuesta-badge encuesta-badge--pendiente">Pendiente</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if encuesta.ya_respondio %}
+                        <a class="egresado-btn egresado-btn--ghost egresado-btn--sm" href="{% url 'maestro:egresado_encuesta_responder' encuesta.pk %}">Ver completada</a>
+                        {% else %}
+                        <a class="egresado-btn egresado-btn--primary egresado-btn--sm" href="{% url 'maestro:egresado_encuesta_responder' encuesta.pk %}">Responder</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="egresado-empty-state">
+        <h3 class="egresado-empty-state__title">Sin encuestas</h3>
+        <p class="egresado-empty-state__text">No hay encuestas publicadas para su perfil en este momento.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

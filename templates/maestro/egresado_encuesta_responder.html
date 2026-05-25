@@ -1,0 +1,178 @@
+{% extends "maestro/egresado_dashboard_base.html" %}
+{% load static %}
+{% block dashboard_title %}Egresados · {{ encuesta.titulo }}{% endblock %}
+{% block dashboard_heading %}{{ encuesta.titulo }}{% endblock %}
+{% block dashboard_subtitle %}
+{% if solo_lectura %}
+Encuesta completada el {{ respuesta_guardada.completada_en|date:"d/m/Y H:i" }}.
+{% else %}
+Complete todas las preguntas obligatorias y envíe sus respuestas.
+{% endif %}
+{% endblock %}
+{% block dashboard_content %}
+<link rel="stylesheet" href="{% static 'maestro/css/encuesta-gestor.css' %}">
+<section class="egresado-card egresado-card--wide">
+    <div class="egresado-card__header">
+        <div>
+            {% if encuesta.descripcion %}
+            <p class="egresado-card__text">{{ encuesta.descripcion }}</p>
+            {% endif %}
+            {% if solo_lectura %}
+            <p class="egresado-card__text">
+                <span class="encuesta-badge encuesta-badge--completada">Completada</span>
+                Sus respuestas no pueden modificarse.
+            </p>
+            {% endif %}
+        </div>
+        <a class="egresado-btn egresado-btn--ghost" href="{% url 'maestro:egresado_encuestas_lista' %}">Volver al listado</a>
+    </div>
+</section>
+
+{% if preguntas_items %}
+<form method="post" class="encuesta-respuesta-form" novalidate>
+    {% csrf_token %}
+    <section class="egresado-grid">
+        {% for item in preguntas_items %}
+        {% with pregunta=item.pregunta saved=item.saved %}
+        <article class="egresado-card egresado-card--wide encuesta-preview-card encuesta-respuesta-card{% if item.error %} encuesta-respuesta-card--error{% endif %}">
+            <div class="egresado-card__header">
+                <div>
+                    <p class="egresado-hero__eyebrow">Pregunta {{ pregunta.orden }}</p>
+                    <h3 class="egresado-card__title">{{ pregunta.titulo }}{% if pregunta.obligatoria and not solo_lectura %} <span class="encuesta-required">*</span>{% endif %}</h3>
+                </div>
+            </div>
+
+            <div class="encuesta-preview-field">
+                {% if pregunta.tipo == 'seleccion_unica' %}
+                {% if solo_lectura %}
+                <p class="encuesta-respuesta-valor">{% if saved %}{{ saved.texto }}{% else %}—{% endif %}</p>
+                {% else %}
+                <select class="egresado-form__select" name="pregunta_{{ pregunta.pk }}" id="pregunta_{{ pregunta.pk }}">
+                    <option value="">Seleccione una opción</option>
+                    {% for opcion in pregunta.opciones.all %}
+                    <option value="{{ opcion.pk }}"
+                        {% if item.post_valor == opcion.pk|stringformat:"s" %}selected{% endif %}>
+                        {{ opcion.texto }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% endif %}
+
+                {% elif pregunta.tipo == 'seleccion_multiple' %}
+                <div class="encuesta-preview-checkboxes">
+                    {% if solo_lectura %}
+                        {% if saved and saved.textos %}
+                        {% for texto in saved.textos %}
+                        <p class="encuesta-respuesta-valor">✓ {{ texto }}</p>
+                        {% endfor %}
+                        {% else %}
+                        <p class="encuesta-respuesta-valor">—</p>
+                        {% endif %}
+                    {% else %}
+                        {% for opcion in pregunta.opciones.all %}
+                        <label class="encuesta-preview-check">
+                            <input type="checkbox" name="pregunta_{{ pregunta.pk }}_{{ opcion.pk }}" value="1"
+                                {% if opcion.pk in item.post_check_ids %}checked{% endif %}>
+                            {{ opcion.texto }}
+                        </label>
+                        {% empty %}
+                        <p class="egresado-card__text">Sin opciones.</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                {% elif pregunta.tipo == 'texto_largo' %}
+                {% if solo_lectura %}
+                <p class="encuesta-respuesta-valor encuesta-respuesta-valor--block">{% if saved %}{{ saved.valor }}{% else %}—{% endif %}</p>
+                {% else %}
+                <textarea class="egresado-form__textarea" name="pregunta_{{ pregunta.pk }}" rows="4">{{ item.post_valor }}</textarea>
+                {% endif %}
+
+                {% elif pregunta.tipo == 'texto_corto' %}
+                {% if solo_lectura %}
+                <p class="encuesta-respuesta-valor">{% if saved %}{{ saved.valor }}{% else %}—{% endif %}</p>
+                {% else %}
+                <input class="egresado-form__input" type="text" name="pregunta_{{ pregunta.pk }}" maxlength="{{ pregunta.texto_maximo }}" value="{{ item.post_valor }}">
+                {% endif %}
+
+                {% elif pregunta.tipo == 'entero' %}
+                {% if solo_lectura %}
+                <p class="encuesta-respuesta-valor">{% if saved %}{{ saved.valor }}{% else %}—{% endif %}</p>
+                {% else %}
+                <input class="egresado-form__input" type="number" step="1" name="pregunta_{{ pregunta.pk }}" value="{{ item.post_valor }}">
+                {% endif %}
+
+                {% elif pregunta.tipo == 'decimal' %}
+                {% if solo_lectura %}
+                <p class="encuesta-respuesta-valor">{% if saved %}{{ saved.valor }}{% else %}—{% endif %}</p>
+                {% else %}
+                <input class="egresado-form__input" type="number" step="any" name="pregunta_{{ pregunta.pk }}" value="{{ item.post_valor }}">
+                {% endif %}
+
+                {% elif pregunta.tipo == 'matriz_seleccion' %}
+                {% with columnas=pregunta.opciones.all %}
+                {% if columnas and item.matriz_filas %}
+                <div class="encuesta-matriz-wrap">
+                    <table class="encuesta-matriz">
+                        <thead>
+                            <tr>
+                                <th scope="col"></th>
+                                {% for col in columnas %}
+                                <th scope="col">{{ col.texto }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for mf in item.matriz_filas %}
+                            <tr>
+                                <th scope="row" class="encuesta-matriz__fila">{{ mf.fila.texto }}</th>
+                                {% for col in columnas %}
+                                <td>
+                                    {% if solo_lectura %}
+                                    {% if mf.opcion_id == col.pk %}
+                                    <span class="encuesta-matriz__sel" aria-hidden="true">●</span>
+                                    {% endif %}
+                                    {% else %}
+                                    <input type="radio" name="matriz_{{ mf.fila.pk }}" value="{{ col.pk }}"
+                                        {% if mf.opcion_id == col.pk %}checked{% endif %}
+                                        aria-label="{{ mf.fila.texto }} — {{ col.texto }}">
+                                    {% endif %}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="egresado-card__text">Matriz no configurada.</p>
+                {% endif %}
+                {% endwith %}
+                {% endif %}
+
+                {% if item.error %}
+                <div class="egresado-form__error">{{ item.error }}</div>
+                {% endif %}
+            </div>
+        </article>
+        {% endwith %}
+        {% endfor %}
+    </section>
+
+    {% if not solo_lectura %}
+    <div class="egresado-form__actions encuesta-respuesta-actions">
+        <button type="submit" class="egresado-btn egresado-btn--primary" onclick="return confirm('¿Enviar sus respuestas? No podrá modificarlas después.');">
+            Enviar encuesta
+        </button>
+        <a class="egresado-btn egresado-btn--ghost" href="{% url 'maestro:egresado_encuestas_lista' %}">Cancelar</a>
+    </div>
+    {% endif %}
+</form>
+{% else %}
+<section class="egresado-card egresado-card--wide">
+    <div class="egresado-empty-state">
+        <p class="egresado-empty-state__text">Esta encuesta no tiene preguntas.</p>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

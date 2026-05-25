@@ -15,3 +15,10 @@ def normalize_apellido(value: str) -> str:
         if unicodedata.category(c) != 'Mn'
     )
     return s
+
+
+def normalizar_escuela(value: str) -> str:
+    """Normaliza nombre de escuela para comparación (espacios, sin tildes, minúsculas)."""
+    s = (value or '').strip()
+    s = ' '.join(s.split())
+    return normalize_apellido(s)
