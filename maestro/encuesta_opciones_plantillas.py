@@ -1,15 +1,15 @@
 """Plantillas de opciones frecuentes para preguntas de selección."""
 
-from typing import TypedDict
+from typing import List, TypedDict
 
 
 class PlantillaOpciones(TypedDict):
     id: str
     nombre: str
-    opciones: list[str]
+    opciones: List[str]
 
 
-OPCIONES_PLANTILLAS: list[PlantillaOpciones] = [
+OPCIONES_PLANTILLAS: List[PlantillaOpciones] = [
     {
         'id': 'satisfaccion_4',
         'nombre': 'Satisfacción (4 niveles)',
@@ -68,8 +68,8 @@ OPCIONES_PLANTILLAS: list[PlantillaOpciones] = [
 ]
 
 
-def sugerencias_autocompletado() -> list[str]:
-    vistas: list[str] = []
+def sugerencias_autocompletado() -> List[str]:
+    vistas: List[str] = []
     for plantilla in OPCIONES_PLANTILLAS:
         for opcion in plantilla['opciones']:
             if opcion not in vistas:
